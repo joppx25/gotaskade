@@ -20,6 +20,8 @@ A task management application where users can create, organize, and track daily 
 git clone <repository-url> goteam && cd goteam
 cp .env.example .env
 make build
+make shell
+composer install
 ```
 
 That's it. The backend entrypoint handles dependency installation, key generation, migrations, and seeding automatically.
