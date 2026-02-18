@@ -14,7 +14,7 @@ A task management application where users can create, organize, and track daily 
 
 ## Architectural Decisions
 
-**Why PostgreSQL?** The app organizes tasks by date and supports search. PostgreSQL handles date operations, indexing, and full-text search more robustly than SQLite, and scales without a migration if the app grows.
+**Why PostgreSQL?** The app organizes tasks by date and supports search. PostgreSQL handles date operations, indexing, and full-text search more robustly than other, and scales without a migration if the app grows.
 
 **Why Sanctum SPA authentication?** Since the frontend and API live on the same top-level domain (`localhost`), Sanctum's cookie-based session auth avoids the complexity of token management on the client while providing CSRF protection out of the box. The frontend is rendered entirely client-side (`ssr: false`) because authenticated state lives in browser cookies, which are not available during server-side rendering.
 
