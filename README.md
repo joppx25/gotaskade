@@ -1,6 +1,6 @@
 # GoTaskade
 
-A task management application where users can create, organize, and track daily tasks.
+A task management application where users can create, organize, and track daily tasks. Built as a decoupled SPA (frontend) + API (backend) architecture, containerized with Docker for a single-command setup.
 
 ## Tech Stack
 
@@ -12,6 +12,20 @@ A task management application where users can create, organize, and track daily 
 | Testing  | Pest PHP                                                      |
 | DevOps   | Docker Compose, pnpm                                          |
 
+## Architectural Decisions
+
+**Why PostgreSQL?** The app organizes tasks by date and supports search. PostgreSQL handles date operations, indexing, and full-text search more robustly than SQLite, and scales without a migration if the app grows.
+
+**Why Sanctum SPA authentication?** Since the frontend and API live on the same top-level domain (`localhost`), Sanctum's cookie-based session auth avoids the complexity of token management on the client while providing CSRF protection out of the box. The frontend is rendered entirely client-side (`ssr: false`) because authenticated state lives in browser cookies, which are not available during server-side rendering.
+
+**Why the Repository pattern?** Controllers delegate all database logic to repository classes behind an interface (`TaskRepositoryInterface`). This keeps controllers thin, makes the data layer swappable, and allows unit-testing business logic without hitting the database.
+
+**Why Policies for authorization?** Laravel Policies decouple access rules from controller logic. Each policy method (`view`, `update`, `delete`) checks ownership (`$user->id === $task->user_id`), so authorization is centralized and testable independently.
+
+**Why JsonResource classes?** All API responses go through `TaskResource` / `UserResource` / `TaskCollection`. This centralizes data transformations, ensures a uniform `{ data: ... }` envelope, and prevents accidental exposure of internal fields like `password`.
+
+**Why Pinia for state?** Pinia is the official Vue 3 state manager. The task store handles API calls, caching, and optimistic updates in one place, keeping components focused on presentation. A `useApi` composable wraps `$fetch` with automatic CSRF token injection and error normalization.
+
 ## Quick Start (Docker)
 
 > **Prerequisites:** Docker and Docker Compose installed.
@@ -22,6 +36,7 @@ cp .env.example .env
 make build
 make shell
 composer install
+php artisan db:seed
 ```
 
 That's it. The backend entrypoint handles dependency installation, key generation, migrations, and seeding automatically.
